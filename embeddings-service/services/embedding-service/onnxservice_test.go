@@ -1,22 +1,20 @@
-package main
+package embeddingservice
 
 import (
 	"fmt"
-	repository "kino-vectors/services/embedding-service"
 	"log"
 	"os"
+	"testing"
 )
 
-func main() {
-	text := "I am a witch and i like casting spells"
-
-	data, err := repository.Onnxservice(text)
+func TestEmbedding(t *testing.T) {
+	data, err := Onnxservice("text here")
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal("cant run, shutting down")
 	}
 
-	file, err := os.OpenFile("data2.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("data.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("failed to open file: %v", err)
 	}
