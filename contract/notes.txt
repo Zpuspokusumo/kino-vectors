@@ -1,0 +1,29 @@
+compile grpc for python stub and golang impl
+
+# For Go
+protoc --go_out=./golang --go_opt=paths=source_relative 
+       --go-grpc_out=./golang --go-grpc_opt=paths=source_relative 
+       --proto_path=.
+       $(find . -name "*.proto")
+
+# For Python
+python -m grpc_tools.protoc --proto_path=. \
+       --python_out=./python --pyi_out=./python \
+       --grpc_python_out=. \
+        $(find . -name "*.proto")
+
+protoc --proto_path=movie-services 
+  --go_out=golang --go_opt=paths=source_relative 
+  --go-grpc_out=golang --go-grpc_opt=paths=source_relative 
+  movie-services/*.proto
+
+powershell
+protoc --go_out=./golang `
+    --go_opt=paths=source_relative --go-grpc_out=./golang ` 
+    --go-grpc_opt=paths=source_relative `
+    movie-services/processmovies.proto
+
+python -m grpc_tools.protoc --proto_path=. `
+       --python_out=./python --pyi_out=./python `
+       --grpc_python_out=. `
+        movie-services/processmovies.proto

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package MovieService;
+
+option go_package = "golang/movie-services";
+
+// Defines a message for a request to get user information.
+message MovieInfo {
+  string title = 1;
+  string director = 2;
+  string year = 3;
+  string genre = 4;
+  repeated string actors = 5;
+  string summary = 6;
+}
+
+message MovieInfos {
+    repeated MovieInfo Movies= 1;
+}
+
+/*
+class MovieInfo:
+    def __init__(self, title="", director="", year="", genre="", actors=None, summary=""):
+        self.title = title
+        self.director = director
+        self.year = year
+        self.genre = genre
+        self.actors = actors if actors else []
+        self.summary = summary
+
+*/
+
+message ProcessMovieResponse {
+    int32 status = 1;
+    string message = 2;
+    int32 items_processed = 3;
+    repeated string unprocessed_items = 4;
+}
+
+// The UserService defines RPC methods for managing user data.
+service MovieService {
+  // Retrieves user information by ID.
+  rpc ProcessMovie (MovieInfo) returns (ProcessMovieResponse);
+
+  // Creates a new user.
+  rpc ProcessMovies (MovieInfos) returns (ProcessMovieResponse);
+}
