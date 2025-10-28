@@ -4,12 +4,11 @@ package MovieService;
 
 option go_package = "golang/movie-services";
 
-// Defines a message for a request to get user information.
 message MovieInfo {
   string title = 1;
   string director = 2;
   string year = 3;
-  string genre = 4;
+  repeated string genre = 4;
   repeated string actors = 5;
   string summary = 6;
 }
@@ -37,7 +36,6 @@ message ProcessMovieResponse {
     repeated string unprocessed_items = 4;
 }
 
-// The UserService defines RPC methods for managing user data.
 service MovieService {
   // Retrieves user information by ID.
   rpc ProcessMovie (MovieInfo) returns (ProcessMovieResponse);

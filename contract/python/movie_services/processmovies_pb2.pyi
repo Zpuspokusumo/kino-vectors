@@ -17,10 +17,10 @@ class MovieInfo(_message.Message):
     title: str
     director: str
     year: str
-    genre: str
+    genre: _containers.RepeatedScalarFieldContainer[str]
     actors: _containers.RepeatedScalarFieldContainer[str]
     summary: str
-    def __init__(self, title: _Optional[str] = ..., director: _Optional[str] = ..., year: _Optional[str] = ..., genre: _Optional[str] = ..., actors: _Optional[_Iterable[str]] = ..., summary: _Optional[str] = ...) -> None: ...
+    def __init__(self, title: _Optional[str] = ..., director: _Optional[str] = ..., year: _Optional[str] = ..., genre: _Optional[_Iterable[str]] = ..., actors: _Optional[_Iterable[str]] = ..., summary: _Optional[str] = ...) -> None: ...
 
 class MovieInfos(_message.Message):
     __slots__ = ("Movies",)

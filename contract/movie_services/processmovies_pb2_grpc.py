@@ -26,8 +26,7 @@ if _version_not_supported:
 
 
 class MovieServiceStub(object):
-    """The UserService defines RPC methods for managing user data.
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -48,8 +47,7 @@ class MovieServiceStub(object):
 
 
 class MovieServiceServicer(object):
-    """The UserService defines RPC methods for managing user data.
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def ProcessMovie(self, request, context):
         """Retrieves user information by ID.
@@ -87,8 +85,7 @@ def add_MovieServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class MovieService(object):
-    """The UserService defines RPC methods for managing user data.
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def ProcessMovie(request,
