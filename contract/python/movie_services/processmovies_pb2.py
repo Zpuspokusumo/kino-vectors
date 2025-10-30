@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"movie-services/processmovies.proto\x12\x0cMovieService\"j\n\tMovieInfo\x12\r\n\x05title\x18\x01 \x01(\t\x12\x10\n\x08\x64irector\x18\x02 \x01(\t\x12\x0c\n\x04year\x18\x03 \x01(\t\x12\r\n\x05genre\x18\x04 \x03(\t\x12\x0e\n\x06\x61\x63tors\x18\x05 \x03(\t\x12\x0f\n\x07summary\x18\x06 \x01(\t\"5\n\nMovieInfos\x12\'\n\x06Movies\x18\x01 \x03(\x0b\x32\x17.MovieService.MovieInfo\"k\n\x14ProcessMovieResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x17\n\x0fitems_processed\x18\x03 \x01(\x05\x12\x19\n\x11unprocessed_items\x18\x04 \x03(\t2\xaa\x01\n\x0cMovieService\x12K\n\x0cProcessMovie\x12\x17.MovieService.MovieInfo\x1a\".MovieService.ProcessMovieResponse\x12M\n\rProcessMovies\x12\x18.MovieService.MovieInfos\x1a\".MovieService.ProcessMovieResponseB\x17Z\x15golang/movie-servicesb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"movie-services/processmovies.proto\x12\x0cMovieService\"j\n\tMovieInfo\x12\r\n\x05title\x18\x01 \x01(\t\x12\x10\n\x08\x64irector\x18\x02 \x01(\t\x12\x0c\n\x04year\x18\x03 \x01(\t\x12\r\n\x05genre\x18\x04 \x03(\t\x12\x0e\n\x06\x61\x63tors\x18\x05 \x03(\t\x12\x0f\n\x07summary\x18\x06 \x01(\t\"5\n\nMovieInfos\x12\'\n\x06Movies\x18\x01 \x03(\x0b\x32\x17.MovieService.MovieInfo\"k\n\x14ProcessMovieResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x17\n\x0fitems_processed\x18\x03 \x01(\x05\x12\x19\n\x11unprocessed_items\x18\x04 \x03(\t\"`\n\x16RecommendMoviesRequest\x12\x12\n\ntext_query\x18\x01 \x01(\t\x12\x0e\n\x06genres\x18\x02 \x03(\t\x12\x10\n\x08year_gte\x18\x03 \x01(\t\x12\x10\n\x08year_lte\x18\x04 \x01(\t\"d\n\x17RecommendMoviesResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x10\n\x08quantity\x18\x02 \x01(\x05\x12\'\n\x06Movies\x18\x03 \x03(\x0b\x32\x17.MovieService.MovieInfo2\xaa\x01\n\x0cMovieService\x12K\n\x0cProcessMovie\x12\x17.MovieService.MovieInfo\x1a\".MovieService.ProcessMovieResponse\x12M\n\rProcessMovies\x12\x18.MovieService.MovieInfos\x1a\".MovieService.ProcessMovieResponseB\x17Z\x15golang/movie-servicesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -38,6 +38,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MOVIEINFOS']._serialized_end=213
   _globals['_PROCESSMOVIERESPONSE']._serialized_start=215
   _globals['_PROCESSMOVIERESPONSE']._serialized_end=322
-  _globals['_MOVIESERVICE']._serialized_start=325
-  _globals['_MOVIESERVICE']._serialized_end=495
+  _globals['_RECOMMENDMOVIESREQUEST']._serialized_start=324
+  _globals['_RECOMMENDMOVIESREQUEST']._serialized_end=420
+  _globals['_RECOMMENDMOVIESRESPONSE']._serialized_start=422
+  _globals['_RECOMMENDMOVIESRESPONSE']._serialized_end=522
+  _globals['_MOVIESERVICE']._serialized_start=525
+  _globals['_MOVIESERVICE']._serialized_end=695
 # @@protoc_insertion_point(module_scope)

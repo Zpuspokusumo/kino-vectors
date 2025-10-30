@@ -39,3 +39,25 @@ class ProcessMovieResponse(_message.Message):
     items_processed: int
     unprocessed_items: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, status: _Optional[int] = ..., message: _Optional[str] = ..., items_processed: _Optional[int] = ..., unprocessed_items: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class RecommendMoviesRequest(_message.Message):
+    __slots__ = ("text_query", "genres", "year_gte", "year_lte")
+    TEXT_QUERY_FIELD_NUMBER: _ClassVar[int]
+    GENRES_FIELD_NUMBER: _ClassVar[int]
+    YEAR_GTE_FIELD_NUMBER: _ClassVar[int]
+    YEAR_LTE_FIELD_NUMBER: _ClassVar[int]
+    text_query: str
+    genres: _containers.RepeatedScalarFieldContainer[str]
+    year_gte: str
+    year_lte: str
+    def __init__(self, text_query: _Optional[str] = ..., genres: _Optional[_Iterable[str]] = ..., year_gte: _Optional[str] = ..., year_lte: _Optional[str] = ...) -> None: ...
+
+class RecommendMoviesResponse(_message.Message):
+    __slots__ = ("status", "quantity", "Movies")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    QUANTITY_FIELD_NUMBER: _ClassVar[int]
+    MOVIES_FIELD_NUMBER: _ClassVar[int]
+    status: int
+    quantity: int
+    Movies: _containers.RepeatedCompositeFieldContainer[MovieInfo]
+    def __init__(self, status: _Optional[int] = ..., quantity: _Optional[int] = ..., Movies: _Optional[_Iterable[_Union[MovieInfo, _Mapping]]] = ...) -> None: ...
