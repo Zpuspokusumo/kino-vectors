@@ -1,4 +1,4 @@
-module golang
+module github.com/Zpuspokusumo/kino-vectors/contract/golang
 
 go 1.24.0
 
