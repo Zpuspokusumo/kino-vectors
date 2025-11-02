@@ -1,0 +1,13 @@
+search_result = client.search(
+    collection_name="movies",
+    query_vector=my_embedding,
+    query_filter={
+        "must": [
+            {"key": "genres", "match": {"value": "sci-fi"}},
+            {"key": "year", "range": {"gte": 1980, "lte": 1990}}
+        ]
+    }
+)
+
+use match any for matching genres = [a,b,c]
+https://github.com/qdrant/qdrant/issues/4679?utm_source=chatgpt.com
