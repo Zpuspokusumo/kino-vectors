@@ -2,13 +2,39 @@ package embeddingservice
 
 import (
 	"fmt"
+	"kino-vectors/env"
+	"kino-vectors/repository"
 	"log"
 	"os"
 	"testing"
 )
 
+func setupservice(ENV env.ENV) (*EmbeddingServiceONNX, error) {
+	client, err := repository.NewClient(ENV.QdrantAPIKEY)
+	if err != nil {
+		return nil, err
+	}
+
+	repo := repository.QdrantRepository{Client: client}
+
+	service, err := MakeServiceONNX(repo)
+	if err != nil {
+		return nil, err
+	}
+
+	return service, nil
+}
+
 func TestEmbedding(t *testing.T) {
-	data, err := Onnxservice("text here")
+	ENV := env.Setup()
+
+	service, err := setupservice(ENV)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal("cant setup service, shutting down")
+	}
+
+	data, err := service.GenerateEmbeddings("text here")
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal("cant run, shutting down")

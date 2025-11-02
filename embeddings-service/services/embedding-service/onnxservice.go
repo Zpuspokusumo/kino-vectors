@@ -1,9 +1,15 @@
 package embeddingservice
 
 import (
+	"context"
 	"fmt"
+	"kino-vectors/repository"
 	"log"
+	"math"
+	"strings"
 
+	"github.com/qdrant/go-client/qdrant"
+	"github.com/sugarme/tokenizer"
 	pretrained "github.com/sugarme/tokenizer/pretrained"
 	ort "github.com/yalue/onnxruntime_go"
 )
@@ -12,77 +18,85 @@ import (
 const modelPath = `..\models\all-MiniLM-L6-v2\all-MiniLM-L6-v2.onnx`
 const tokenizerpath = `..\models\all-MiniLM-L6-v2\tokenizer.json`
 
-func CheckExecution() (string, error) {
-	//return "OPENVINO", nil
-	return "", nil
+type EmbeddingServiceONNX struct {
+	modelPath     string
+	tokenizerPath string
+	repo          repository.QdrantRepository
+	seqSize       int
+	weightcount   int
+	tk            *tokenizer.Tokenizer
 }
 
-func Tokenize(text string) ([]int, error) {
-	//TODO: real implementation
+func (s *EmbeddingServiceONNX) GetSeqsize() int {
+	return s.seqSize
+}
+
+func MakeServiceONNX(repo repository.QdrantRepository) (*EmbeddingServiceONNX, error) {
 	tk, err := pretrained.FromFile(tokenizerpath)
 	if err != nil {
 		return nil, fmt.Errorf("%v: for path :%v", err, tokenizerpath)
 	}
 
-	// // Set padding manually
-	// padding := tokenizers.PaddingParams{}
-	// padding.Strategy = *tokenizers.NewPaddingStrategy(tokenizers.WithFixed(128)) // or tok.PaddingStrategyBatchLongest
-	// padding.PadId = 0
-	// padding.PadToken = "[PAD]"
-	// tk.WithPadding(&padding)
-
-	//defer tk.Close()
-	ids, _ := tk.EncodeSingle(text, false)
-
-	return ids.GetIds(), err
-	//return []float32{0.75, 0.55, -0.83, -0.76}, nil
+	if tk == nil {
+		log.Fatal("tokenizer is nil")
+	}
+	return &EmbeddingServiceONNX{
+		modelPath:     modelPath,
+		tokenizerPath: tokenizerpath,
+		repo:          repo,
+		seqSize:       128,
+		weightcount:   3,
+		tk:            tk,
+	}, nil
 }
 
-func Onnxservice(text string) ([]float32, error) {
-	err := ort.InitializeEnvironment()
+func CheckExecution() (string, error) {
+	//return "OPENVINO", nil
+	return "", nil
+}
+
+func (service *EmbeddingServiceONNX) Tokenize(text string) ([]int, error) {
+
+	//defer tk.Close()
+	ids, err := service.tk.EncodeSingle(text, false)
 	if err != nil {
-		log.Fatalf("Failed to initialize ORT: %v ", err)
+		log.Fatal("tokenizer error:", err)
 	}
+	if ids == nil || ids.Len() == 0 {
+		log.Fatalf("tokenizer returned empty ids for text: %q", text)
+	}
+	fmt.Println("text ", text)
+	fmt.Println(ids.GetIds())
 
-	tokens, err := Tokenize(text)
-	if err != nil {
-		err = fmt.Errorf("error tokenizing :%v ", err)
-		return nil, err
-	}
-	ids := make([]int64, 128)
-	for i, t := range tokens {
-		ids[i] = int64(t)
-	}
+	return ids.GetIds(), err
+}
 
-	for len(ids) < 128 {
-		ids = append(ids, 0)
-	}
-
+func (service *EmbeddingServiceONNX) Embed(chunklen int, ids, mask []int64) ([]float32, error) {
 	executor, err := CheckExecution()
 	if err != nil {
 		err = fmt.Errorf("error checking executor :%v ", err)
 		return nil, err
 	}
 
-	inputShape := ort.NewShape(1, 128)
+	inputShape := ort.NewShape(int64(chunklen), 128)
 	//inputTensor, err := ort.NewEmptyTensor[float32](inputShape)
 	inputTensor, err := ort.NewTensor[int64](inputShape, ids)
 	if err != nil {
 		err = fmt.Errorf("Error creating input tensor: %w ", err)
 		return nil, err
 	}
-	mask := make([]int64, len(ids))
 	for i := range ids {
 		if ids[i] != 0 { // 0 is pad token id
 			mask[i] = 1
 		}
 	}
-	maskShape := ort.NewShape(1, int64(len(ids)))
+	maskShape := ort.NewShape(int64(chunklen), 128)
 	maskTensor, err := ort.NewTensor[int64](maskShape, mask)
 	if err != nil {
 		log.Fatalf("Error creating attention_mask tensor: %v", err)
 	}
-	tokenTypeIds := make([]int64, 128) // all zeros (single sentence)
+	//tokentypeids is for cls/sep tokens, unused for embeddings, just return all zero
+	tokenTypeIds := make([]int64, chunklen*128) // all zeros (single sentence) un
 	tokenTypeIdsTensor, err := ort.NewTensor[int64](maskShape, tokenTypeIds)
 	if err != nil {
 		log.Fatalf("Error creating tokenTypeIds tensor: %v", err)
@@ -90,7 +104,7 @@ func Onnxservice(text string) ([]float32, error) {
 
 	// todo: add chunking/truncation
 
-	outputShape := ort.NewShape(1, 128, 384)
+	outputShape := ort.NewShape(int64(chunklen), 128, 384)
 	outputTensor, err := ort.NewEmptyTensor[float32](outputShape)
 	if err != nil {
 		inputTensor.Destroy()
@@ -110,7 +124,7 @@ func Onnxservice(text string) ([]float32, error) {
 		options.AppendExecutionProviderOpenVINO(map[string]string{"device_type": "GPU"})
 	}
 
-	session, err := ort.NewAdvancedSession(modelPath,
+	session, err := ort.NewAdvancedSession(service.modelPath,
 		[]string{"input_ids", "attention_mask", "token_type_ids"}, []string{"last_hidden_state"},
 		[]ort.ArbitraryTensor{inputTensor, maskTensor, tokenTypeIdsTensor},
 		[]ort.ArbitraryTensor{outputTensor},
@@ -129,16 +143,43 @@ func Onnxservice(text string) ([]float32, error) {
 		return nil, err
 	}
 
-	// outputTensor.GetData() returns []float32 of shape [1,128,384]
+	// outputTensor.GetData() returns []float32 of shape [chunklen,128,384]
 	data := outputTensor.GetData()
 
-	meanEmbedding := make([]float32, 384)
-	validCount := 0
+	return data, nil
+}
 
-	for i := range 128 {
-		if mask[i] == 1 {
+func (service *EmbeddingServiceONNX) GenerateEmbeddings(text string) ([]float32, error) {
+	err := ort.InitializeEnvironment()
+	if err != nil {
+		log.Fatalf("Failed to initialize ORT: %v ", err)
+	}
+	tokens, err := service.Tokenize(text)
+	if err != nil {
+		err = fmt.Errorf("error tokenizing :%v ", err)
+		return nil, err
+	}
+	chunklen := int(math.Ceil(float64(len(tokens)) / 128.0))
+	ids := make([]int64, chunklen*128)
+	for i := range tokens {
+		ids[i] = int64(tokens[i])
+	}
+	mask := make([]int64, len(ids))
+
+	data, err := service.Embed(chunklen, ids, mask)
+	if err != nil {
+		return nil, err
+	}
+
+	meanEmbedding := make([]float32, 384)
+	validCount := 0 //number of valid tokens
+
+	// change from iterating over mask for shape safety
+	for tokenIdx := 0; tokenIdx < chunklen*128; tokenIdx++ {
+		if mask[tokenIdx] == 1 {
+			base := tokenIdx * 384
 			for j := 0; j < 384; j++ {
-				meanEmbedding[j] += data[i*384+j]
+				meanEmbedding[j] += data[base+j]
 			}
 			validCount++
 		}
@@ -149,18 +190,126 @@ func Onnxservice(text string) ([]float32, error) {
 	}
 
 	return meanEmbedding, nil
-	// file, err := os.OpenFile("data.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	// if err != nil {
-	// 	log.Fatalf("failed to open file: %v", err)
-	// }
-	// // The defer statement ensures the file is closed at the end of the main function.
-	// defer file.Close()
+}
 
-	// Iterate over the slice and write each float to a new line in the file.
-	// for _, number := range data {
-	// 	_, err := fmt.Fprintf(file, "%.5f\n", number)
-	// 	if err != nil {
-	// 		log.Fatalf("failed to write to file: %v", err)
-	// 	}
-	// }
+func (service *EmbeddingServiceONNX) GetMovieEmbeddings(texts []string) ([]float32, error) {
+	if len(texts) != service.weightcount {
+		return nil, fmt.Errorf("texts is of improper batch count")
+	}
+	err := ort.InitializeEnvironment()
+	if err != nil {
+		log.Fatalf("Failed to initialize ORT: %v ", err)
+	}
+
+	//tokenize for each batch
+	// need chunk offsets because model will ingest the text all as one argument to save resources
+	tokensbatch := [][]int{}
+	chunkoffsets := []int{} //for later
+	totalchunklen := int(0)
+	for i := range texts {
+		tokens, err := service.Tokenize(texts[i])
+		if err != nil {
+			err = fmt.Errorf("error tokenizing :%v ", err)
+			return nil, err
+		}
+		tokensbatch = append(tokensbatch, tokens)
+
+		chunklen := int(math.Ceil(float64(len(tokensbatch[i])) / 128.0))
+		chunkoffsets = append(chunkoffsets, chunklen)
+		totalchunklen += chunklen
+	}
+	totallength := totalchunklen * 128
+	// determine which parts to weight?
+	// for now texts at index 0 Actors, 1 Genres, 2 Summary (incls title, year, dir, etc)
+
+	//like calloc, the rest is already zero
+	//cant move this to the previous loop without making ids variable-length. might save on memory
+	ids := make([]int64, totallength) //literally all padding
+	start := 0
+	for i, offset := range chunkoffsets {
+		//tokensbatch doesnt have pad here
+		for j := range tokensbatch[i] { // j counts index of tokens in inner list
+			ids[start*128+j] = int64(tokensbatch[i][j])
+		}
+		start += offset //move up the belt
+	}
+	/* scrutinize this code
+	idx := 0
+	for _, toks := range tokensbatch {
+	    for _, t := range toks {
+	        ids[idx] = int64(t)
+	        idx++
+	    }
+	    // pad this chunk to 128 tokens
+	    pad := 128 - (len(toks) % 128)
+	    if pad < 128 {
+	        idx += pad
+	    }
+	}
+
+	*/
+
+	mask := make([]int64, len(ids))
+
+	// embed after fixing tokensbatch
+	data, err := service.Embed(totalchunklen, ids, mask)
+	if err != nil {
+		return nil, err
+	}
+
+	//mean pooling here
+	meanEmbedding := make([]float32, 384)
+	validCount := 0 //number of valid tokens
+
+	// change from iterating over mask for shape safety
+	for tokenIdx := 0; tokenIdx < totalchunklen*128; tokenIdx++ {
+		if mask[tokenIdx] == 1 {
+			base := tokenIdx * 384
+			for j := 0; j < 384; j++ {
+				meanEmbedding[j] += data[base+j]
+			}
+			validCount++
+		}
+	}
+
+	for j := range meanEmbedding {
+		meanEmbedding[j] /= float32(validCount)
+	}
+
+	return meanEmbedding, nil
+}
+
+func MovieDatatoString(m repository.MovieInfo) string {
+	return fmt.Sprintf("%v %d dir. %v \n\nGenres: %v \n\nActors: %v \n\nPlot: %v", m.Title, m.Year, m.Director,
+		strings.Join(m.Genre, ","), strings.Join(m.Actors, ","), m.Summary)
+}
+
+func MovieDataByWeights(m repository.MovieInfo) []string {
+	actors := fmt.Sprintf("Actors: %v\n", strings.Join(m.Actors, ","))
+	genres := fmt.Sprintf("Genres: %v\n", strings.Join(m.Genre, ","))
+	summary := fmt.Sprintf("%v %d dir. %v \n\nPlot: %v", m.Title, m.Year, m.Director, m.Summary)
+	return []string{actors, genres, summary}
+}
+
+func (service *EmbeddingServiceONNX) ProcessMovieData(ctx context.Context, movie repository.MovieInfo, collection string) ([]*qdrant.ScoredPoint, error) {
+	//movietext := MovieDatatoString(movie)
+	v, err := service.GetMovieEmbeddings(MovieDataByWeights(movie))
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := service.repo.UpsertPoints(ctx, collection, v, repository.MovieToPayload(&movie))
+	if err != nil {
+		return nil, fmt.Errorf("upsert failed: %v", err.Error())
+	}
+	fmt.Println(res.Status.Descriptor(), "op ID", res.OperationId)
+	if res.Status == qdrant.UpdateStatus_ClockRejected {
+		return nil, fmt.Errorf("upsert rejected")
+	}
+
+	points, err := service.repo.SearchMovie(v, []string{})
+	if err != nil {
+		return nil, err
+	}
+	return points, nil
 }
