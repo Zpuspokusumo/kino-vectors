@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"movie-services/processmovies.proto\x12\x0cMovieService\"\x85\x01\n\tMovieInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x10\n\x08\x64irector\x18\x03 \x01(\t\x12\x0c\n\x04year\x18\x04 \x01(\r\x12\r\n\x05genre\x18\x05 \x03(\t\x12\x0e\n\x06\x61\x63tors\x18\x06 \x03(\t\x12\x0f\n\x07summary\x18\x07 \x01(\t\x12\r\n\x05image\x18\x08 \x01(\t\"5\n\nMovieInfos\x12\'\n\x06Movies\x18\x01 \x03(\x0b\x32\x17.MovieService.MovieInfo\"k\n\x14ProcessMovieResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x17\n\x0fitems_processed\x18\x03 \x01(\x05\x12\x19\n\x11unprocessed_items\x18\x04 \x03(\t\"`\n\x16RecommendMoviesRequest\x12\x12\n\ntext_query\x18\x01 \x01(\t\x12\x0e\n\x06genres\x18\x02 \x03(\t\x12\x10\n\x08year_gte\x18\x03 \x01(\t\x12\x10\n\x08year_lte\x18\x04 \x01(\t\"d\n\x17RecommendMoviesResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x10\n\x08quantity\x18\x02 \x01(\x05\x12\'\n\x06Movies\x18\x03 \x03(\x0b\x32\x17.MovieService.MovieInfo2\x9a\x02\n\x0cMovieService\x12S\n\x14ProcessMovieSingular\x12\x17.MovieService.MovieInfo\x1a\".MovieService.ProcessMovieResponse\x12U\n\x15ProcessMoviesMultiple\x12\x18.MovieService.MovieInfos\x1a\".MovieService.ProcessMovieResponse\x12^\n\x0fRecommendMovies\x12$.MovieService.RecommendMoviesRequest\x1a%.MovieService.RecommendMoviesResponseB\x17Z\x15golang/movie-servicesb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"movie-services/processmovies.proto\x12\x0cMovieService\"\x85\x01\n\tMovieInfo\x12\n\n\x02id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x10\n\x08\x64irector\x18\x03 \x01(\t\x12\x0c\n\x04year\x18\x04 \x01(\r\x12\r\n\x05genre\x18\x05 \x03(\t\x12\x0e\n\x06\x61\x63tors\x18\x06 \x03(\t\x12\x0f\n\x07summary\x18\x07 \x01(\t\x12\r\n\x05image\x18\x08 \x01(\t\"5\n\nMovieInfos\x12\'\n\x06Movies\x18\x01 \x03(\x0b\x32\x17.MovieService.MovieInfo\"k\n\x14ProcessMovieResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x17\n\x0fitems_processed\x18\x03 \x01(\x05\x12\x19\n\x11unprocessed_items\x18\x04 \x03(\t\"r\n\x16RecommendMoviesRequest\x12\x12\n\ntext_query\x18\x01 \x01(\t\x12\x0e\n\x06genres\x18\x02 \x03(\t\x12\x10\n\x08year_gte\x18\x03 \x01(\t\x12\x10\n\x08year_lte\x18\x04 \x01(\t\x12\x10\n\x08quantity\x18\x05 \x01(\r\"d\n\x17RecommendMoviesResponse\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x10\n\x08quantity\x18\x02 \x01(\x05\x12\'\n\x06Movies\x18\x03 \x03(\x0b\x32\x17.MovieService.MovieInfo2\x9a\x02\n\x0cMovieService\x12S\n\x14ProcessMovieSingular\x12\x17.MovieService.MovieInfo\x1a\".MovieService.ProcessMovieResponse\x12U\n\x15ProcessMoviesMultiple\x12\x18.MovieService.MovieInfos\x1a\".MovieService.ProcessMovieResponse\x12^\n\x0fRecommendMovies\x12$.MovieService.RecommendMoviesRequest\x1a%.MovieService.RecommendMoviesResponseB\x17Z\x15golang/movie-servicesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,9 +39,9 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_PROCESSMOVIERESPONSE']._serialized_start=243
   _globals['_PROCESSMOVIERESPONSE']._serialized_end=350
   _globals['_RECOMMENDMOVIESREQUEST']._serialized_start=352
-  _globals['_RECOMMENDMOVIESREQUEST']._serialized_end=448
-  _globals['_RECOMMENDMOVIESRESPONSE']._serialized_start=450
-  _globals['_RECOMMENDMOVIESRESPONSE']._serialized_end=550
-  _globals['_MOVIESERVICE']._serialized_start=553
-  _globals['_MOVIESERVICE']._serialized_end=835
+  _globals['_RECOMMENDMOVIESREQUEST']._serialized_end=466
+  _globals['_RECOMMENDMOVIESRESPONSE']._serialized_start=468
+  _globals['_RECOMMENDMOVIESRESPONSE']._serialized_end=568
+  _globals['_MOVIESERVICE']._serialized_start=571
+  _globals['_MOVIESERVICE']._serialized_end=853
 # @@protoc_insertion_point(module_scope)

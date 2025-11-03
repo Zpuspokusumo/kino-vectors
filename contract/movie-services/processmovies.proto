@@ -43,6 +43,7 @@ message RecommendMoviesRequest {
   repeated string genres = 2;
   string year_gte = 3;
   string year_lte = 4;
+  uint32 quantity = 5;
 }
 
 message RecommendMoviesResponse {
