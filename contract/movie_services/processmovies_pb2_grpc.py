@@ -34,31 +34,40 @@ class MovieServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ProcessMovie = channel.unary_unary(
-                '/MovieService.MovieService/ProcessMovie',
+        self.ProcessMovieSingular = channel.unary_unary(
+                '/MovieService.MovieService/ProcessMovieSingular',
                 request_serializer=movie__services_dot_processmovies__pb2.MovieInfo.SerializeToString,
                 response_deserializer=movie__services_dot_processmovies__pb2.ProcessMovieResponse.FromString,
                 _registered_method=True)
-        self.ProcessMovies = channel.unary_unary(
-                '/MovieService.MovieService/ProcessMovies',
+        self.ProcessMoviesMultiple = channel.unary_unary(
+                '/MovieService.MovieService/ProcessMoviesMultiple',
                 request_serializer=movie__services_dot_processmovies__pb2.MovieInfos.SerializeToString,
                 response_deserializer=movie__services_dot_processmovies__pb2.ProcessMovieResponse.FromString,
+                _registered_method=True)
+        self.RecommendMovies = channel.unary_unary(
+                '/MovieService.MovieService/RecommendMovies',
+                request_serializer=movie__services_dot_processmovies__pb2.RecommendMoviesRequest.SerializeToString,
+                response_deserializer=movie__services_dot_processmovies__pb2.RecommendMoviesResponse.FromString,
                 _registered_method=True)
 
 
 class MovieServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def ProcessMovie(self, request, context):
-        """Retrieves user information by ID.
-        """
+    def ProcessMovieSingular(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ProcessMovies(self, request, context):
-        """Creates a new user.
-        """
+    def ProcessMoviesMultiple(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RecommendMovies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -66,15 +75,20 @@ class MovieServiceServicer(object):
 
 def add_MovieServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ProcessMovie': grpc.unary_unary_rpc_method_handler(
-                    servicer.ProcessMovie,
+            'ProcessMovieSingular': grpc.unary_unary_rpc_method_handler(
+                    servicer.ProcessMovieSingular,
                     request_deserializer=movie__services_dot_processmovies__pb2.MovieInfo.FromString,
                     response_serializer=movie__services_dot_processmovies__pb2.ProcessMovieResponse.SerializeToString,
             ),
-            'ProcessMovies': grpc.unary_unary_rpc_method_handler(
-                    servicer.ProcessMovies,
+            'ProcessMoviesMultiple': grpc.unary_unary_rpc_method_handler(
+                    servicer.ProcessMoviesMultiple,
                     request_deserializer=movie__services_dot_processmovies__pb2.MovieInfos.FromString,
                     response_serializer=movie__services_dot_processmovies__pb2.ProcessMovieResponse.SerializeToString,
+            ),
+            'RecommendMovies': grpc.unary_unary_rpc_method_handler(
+                    servicer.RecommendMovies,
+                    request_deserializer=movie__services_dot_processmovies__pb2.RecommendMoviesRequest.FromString,
+                    response_serializer=movie__services_dot_processmovies__pb2.RecommendMoviesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -88,7 +102,7 @@ class MovieService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def ProcessMovie(request,
+    def ProcessMovieSingular(request,
             target,
             options=(),
             channel_credentials=None,
@@ -101,7 +115,7 @@ class MovieService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/MovieService.MovieService/ProcessMovie',
+            '/MovieService.MovieService/ProcessMovieSingular',
             movie__services_dot_processmovies__pb2.MovieInfo.SerializeToString,
             movie__services_dot_processmovies__pb2.ProcessMovieResponse.FromString,
             options,
@@ -115,7 +129,7 @@ class MovieService(object):
             _registered_method=True)
 
     @staticmethod
-    def ProcessMovies(request,
+    def ProcessMoviesMultiple(request,
             target,
             options=(),
             channel_credentials=None,
@@ -128,9 +142,36 @@ class MovieService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/MovieService.MovieService/ProcessMovies',
+            '/MovieService.MovieService/ProcessMoviesMultiple',
             movie__services_dot_processmovies__pb2.MovieInfos.SerializeToString,
             movie__services_dot_processmovies__pb2.ProcessMovieResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RecommendMovies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/MovieService.MovieService/RecommendMovies',
+            movie__services_dot_processmovies__pb2.RecommendMoviesRequest.SerializeToString,
+            movie__services_dot_processmovies__pb2.RecommendMoviesResponse.FromString,
             options,
             channel_credentials,
             insecure,

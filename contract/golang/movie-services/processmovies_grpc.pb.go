@@ -19,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MovieService_ProcessMovie_FullMethodName  = "/MovieService.MovieService/ProcessMovie"
-	MovieService_ProcessMovies_FullMethodName = "/MovieService.MovieService/ProcessMovies"
+	MovieService_ProcessMovieSingular_FullMethodName  = "/MovieService.MovieService/ProcessMovieSingular"
+	MovieService_ProcessMoviesMultiple_FullMethodName = "/MovieService.MovieService/ProcessMoviesMultiple"
+	MovieService_RecommendMovies_FullMethodName       = "/MovieService.MovieService/RecommendMovies"
 )
 
 // MovieServiceClient is the client API for MovieService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MovieServiceClient interface {
-	// Retrieves user information by ID.
-	ProcessMovie(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*ProcessMovieResponse, error)
-	// Creates a new user.
-	ProcessMovies(ctx context.Context, in *MovieInfos, opts ...grpc.CallOption) (*ProcessMovieResponse, error)
+	ProcessMovieSingular(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*ProcessMovieResponse, error)
+	ProcessMoviesMultiple(ctx context.Context, in *MovieInfos, opts ...grpc.CallOption) (*ProcessMovieResponse, error)
+	RecommendMovies(ctx context.Context, in *RecommendMoviesRequest, opts ...grpc.CallOption) (*RecommendMoviesResponse, error)
 }
 
 type movieServiceClient struct {
@@ -41,18 +41,27 @@ func NewMovieServiceClient(cc grpc.ClientConnInterface) MovieServiceClient {
 	return &movieServiceClient{cc}
 }
 
-func (c *movieServiceClient) ProcessMovie(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*ProcessMovieResponse, error) {
+func (c *movieServiceClient) ProcessMovieSingular(ctx context.Context, in *MovieInfo, opts ...grpc.CallOption) (*ProcessMovieResponse, error) {
 	out := new(ProcessMovieResponse)
-	err := c.cc.Invoke(ctx, MovieService_ProcessMovie_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MovieService_ProcessMovieSingular_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *movieServiceClient) ProcessMovies(ctx context.Context, in *MovieInfos, opts ...grpc.CallOption) (*ProcessMovieResponse, error) {
+func (c *movieServiceClient) ProcessMoviesMultiple(ctx context.Context, in *MovieInfos, opts ...grpc.CallOption) (*ProcessMovieResponse, error) {
 	out := new(ProcessMovieResponse)
-	err := c.cc.Invoke(ctx, MovieService_ProcessMovies_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MovieService_ProcessMoviesMultiple_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *movieServiceClient) RecommendMovies(ctx context.Context, in *RecommendMoviesRequest, opts ...grpc.CallOption) (*RecommendMoviesResponse, error) {
+	out := new(RecommendMoviesResponse)
+	err := c.cc.Invoke(ctx, MovieService_RecommendMovies_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,10 +72,9 @@ func (c *movieServiceClient) ProcessMovies(ctx context.Context, in *MovieInfos, 
 // All implementations must embed UnimplementedMovieServiceServer
 // for forward compatibility
 type MovieServiceServer interface {
-	// Retrieves user information by ID.
-	ProcessMovie(context.Context, *MovieInfo) (*ProcessMovieResponse, error)
-	// Creates a new user.
-	ProcessMovies(context.Context, *MovieInfos) (*ProcessMovieResponse, error)
+	ProcessMovieSingular(context.Context, *MovieInfo) (*ProcessMovieResponse, error)
+	ProcessMoviesMultiple(context.Context, *MovieInfos) (*ProcessMovieResponse, error)
+	RecommendMovies(context.Context, *RecommendMoviesRequest) (*RecommendMoviesResponse, error)
 	mustEmbedUnimplementedMovieServiceServer()
 }
 
@@ -74,11 +82,14 @@ type MovieServiceServer interface {
 type UnimplementedMovieServiceServer struct {
 }
 
-func (UnimplementedMovieServiceServer) ProcessMovie(context.Context, *MovieInfo) (*ProcessMovieResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProcessMovie not implemented")
+func (UnimplementedMovieServiceServer) ProcessMovieSingular(context.Context, *MovieInfo) (*ProcessMovieResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessMovieSingular not implemented")
 }
-func (UnimplementedMovieServiceServer) ProcessMovies(context.Context, *MovieInfos) (*ProcessMovieResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ProcessMovies not implemented")
+func (UnimplementedMovieServiceServer) ProcessMoviesMultiple(context.Context, *MovieInfos) (*ProcessMovieResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProcessMoviesMultiple not implemented")
+}
+func (UnimplementedMovieServiceServer) RecommendMovies(context.Context, *RecommendMoviesRequest) (*RecommendMoviesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RecommendMovies not implemented")
 }
 func (UnimplementedMovieServiceServer) mustEmbedUnimplementedMovieServiceServer() {}
 
@@ -93,38 +104,56 @@ func RegisterMovieServiceServer(s grpc.ServiceRegistrar, srv MovieServiceServer)
 	s.RegisterService(&MovieService_ServiceDesc, srv)
 }
 
-func _MovieService_ProcessMovie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MovieService_ProcessMovieSingular_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MovieInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MovieServiceServer).ProcessMovie(ctx, in)
+		return srv.(MovieServiceServer).ProcessMovieSingular(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MovieService_ProcessMovie_FullMethodName,
+		FullMethod: MovieService_ProcessMovieSingular_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MovieServiceServer).ProcessMovie(ctx, req.(*MovieInfo))
+		return srv.(MovieServiceServer).ProcessMovieSingular(ctx, req.(*MovieInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MovieService_ProcessMovies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MovieService_ProcessMoviesMultiple_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MovieInfos)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MovieServiceServer).ProcessMovies(ctx, in)
+		return srv.(MovieServiceServer).ProcessMoviesMultiple(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MovieService_ProcessMovies_FullMethodName,
+		FullMethod: MovieService_ProcessMoviesMultiple_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MovieServiceServer).ProcessMovies(ctx, req.(*MovieInfos))
+		return srv.(MovieServiceServer).ProcessMoviesMultiple(ctx, req.(*MovieInfos))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MovieService_RecommendMovies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendMoviesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MovieServiceServer).RecommendMovies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MovieService_RecommendMovies_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MovieServiceServer).RecommendMovies(ctx, req.(*RecommendMoviesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -137,12 +166,16 @@ var MovieService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MovieServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ProcessMovie",
-			Handler:    _MovieService_ProcessMovie_Handler,
+			MethodName: "ProcessMovieSingular",
+			Handler:    _MovieService_ProcessMovieSingular_Handler,
 		},
 		{
-			MethodName: "ProcessMovies",
-			Handler:    _MovieService_ProcessMovies_Handler,
+			MethodName: "ProcessMoviesMultiple",
+			Handler:    _MovieService_ProcessMoviesMultiple_Handler,
+		},
+		{
+			MethodName: "RecommendMovies",
+			Handler:    _MovieService_RecommendMovies_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

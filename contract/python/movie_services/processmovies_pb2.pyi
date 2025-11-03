@@ -7,20 +7,24 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class MovieInfo(_message.Message):
-    __slots__ = ("title", "director", "year", "genre", "actors", "summary")
+    __slots__ = ("id", "title", "director", "year", "genre", "actors", "summary", "image")
+    ID_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
     DIRECTOR_FIELD_NUMBER: _ClassVar[int]
     YEAR_FIELD_NUMBER: _ClassVar[int]
     GENRE_FIELD_NUMBER: _ClassVar[int]
     ACTORS_FIELD_NUMBER: _ClassVar[int]
     SUMMARY_FIELD_NUMBER: _ClassVar[int]
+    IMAGE_FIELD_NUMBER: _ClassVar[int]
+    id: str
     title: str
     director: str
-    year: str
+    year: int
     genre: _containers.RepeatedScalarFieldContainer[str]
     actors: _containers.RepeatedScalarFieldContainer[str]
     summary: str
-    def __init__(self, title: _Optional[str] = ..., director: _Optional[str] = ..., year: _Optional[str] = ..., genre: _Optional[_Iterable[str]] = ..., actors: _Optional[_Iterable[str]] = ..., summary: _Optional[str] = ...) -> None: ...
+    image: str
+    def __init__(self, id: _Optional[str] = ..., title: _Optional[str] = ..., director: _Optional[str] = ..., year: _Optional[int] = ..., genre: _Optional[_Iterable[str]] = ..., actors: _Optional[_Iterable[str]] = ..., summary: _Optional[str] = ..., image: _Optional[str] = ...) -> None: ...
 
 class MovieInfos(_message.Message):
     __slots__ = ("Movies",)

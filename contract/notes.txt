@@ -27,3 +27,13 @@ python -m grpc_tools.protoc --proto_path=. `
        --python_out=./python --pyi_out=./python `
        --grpc_python_out=. `
         movie-services/processmovies.proto
+
+PS C:\Users\Zidane\Documents\ACode-Car\movrec> git tag contract/golang/v0.1.0
+PS C:\Users\Zidane\Documents\ACode-Car\movrec> git push origin contract/golang/v0.1.0
+
+update contract flow
+edit contract
+commit + push
+tag at repo root, e.g. contract/golang/v0.2.0
+git push origin tagname
+consumer runs go get github.com/...@contract/golang/v0.2.0
