@@ -1,0 +1,12 @@
+{{ range .Films }}
+<li class="list-group-item bg-primary text-white">
+    <strong>{{ .Title }}</strong>
+    <br>
+    <small>Genres:</small>
+    <ul class="mb-0">
+        {{ range .Genre }}
+        <li>{{ . }}</li>
+        {{ end }}
+    </ul>
+</li>
+{{ end }}
