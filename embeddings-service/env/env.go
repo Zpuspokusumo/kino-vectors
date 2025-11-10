@@ -1,13 +1,27 @@
 package env
 
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
+
 type ENV struct {
-	QdrantAPIKEY          string
+	QdrantAPIport         string
 	QdrantMovieCollection string
+	Embeddingserviceport  string
 }
 
 func Setup() ENV {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	return ENV{
-		QdrantAPIKEY:          "localhost:6334:",
-		QdrantMovieCollection: "testmovie01",
+		QdrantAPIport:         os.Getenv("QDRANT_API_PORT"),
+		QdrantMovieCollection: os.Getenv("QDRANT_MOVIE_COLLECTION"),
+		Embeddingserviceport:  os.Getenv("EMBEDDINGSERVICEPORT"),
 	}
 }

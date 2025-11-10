@@ -1,12 +1,13 @@
 package data
 
 import (
-	"kino-vectors/repository"
 	"strings"
+
+	moviepb "github.com/Zpuspokusumo/kino-vectors/contract/golang/movie-services"
 )
 
-func GetdataInception() repository.MovieInfo {
-	return repository.MovieInfo{
+func GetdataInception() *moviepb.MovieInfo {
+	return &moviepb.MovieInfo{
 		Id:       "79132",
 		Title:    "Inception",
 		Director: "Christopher Nolan",
@@ -38,8 +39,8 @@ Revived into the third level, Robert discovers the planted idea: his dying fathe
 }
 
 // go mod edit -replace="github.com/Zpuspokusumo/kino-vectors/contract/golang=github.com/Zpuspokusumo/kino-vectors/contract/golang/version@latest"
-func GetdataShort() repository.MovieInfo {
-	return repository.MovieInfo{
+func GetdataShort() *moviepb.MovieInfo {
+	return &moviepb.MovieInfo{
 		Title:    "Inception",
 		Director: "Christopher Nolan",
 		Year:     2010,
