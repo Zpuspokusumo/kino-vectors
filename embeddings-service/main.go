@@ -3,20 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
+	"kino-vectors/controller"
 	"kino-vectors/data"
 	"kino-vectors/env"
 	"kino-vectors/repository"
 	embeddingservice "kino-vectors/services/embedding-service"
 	"log"
+	"net"
 	"os"
+
+	moviepb "github.com/Zpuspokusumo/kino-vectors/contract/golang/movie-services"
+	"google.golang.org/grpc"
 )
 
 const (
 	maxMessageSize = 20 * 1024 * 1024 // 20MB
 )
 
-func setupservice(ENV env.ENV) (*embeddingservice.EmbeddingServiceONNX, error) {
-	client, err := repository.NewClient(ENV.QdrantAPIKEY)
+func setupserver(ENV env.ENV) (*controller.Controller, error) {
+	client, err := repository.NewClient(ENV.QdrantAPIport)
 	if err != nil {
 		return nil, err
 	}
@@ -27,23 +32,37 @@ func setupservice(ENV env.ENV) (*embeddingservice.EmbeddingServiceONNX, error) {
 	if err != nil {
 		return nil, err
 	}
-	return service, nil
+	c := controller.New(service)
+	return c, nil
 }
+
+// func setupgrpc() {
+// 	a, b := moviepb.RegisterMovieServiceServer()
+// }
 
 func main() {
 
 	ENV := env.Setup()
 
-	service, err := setupservice(ENV)
+	servercontroller, err := setupserver(ENV)
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal("cant setup service, shutting down")
 	}
-	//text := "I am a witch and i like casting spells"
-	text := "Hello, world!"
-	testonnxembeddingtofile(service, text)
+	//testonnxembeddingtofile(service, text)
 
 	//testqdrantinsert(context.Background(), service, ENV.QdrantMovieCollection)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", ENV.Embeddingserviceport))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	grpcserver := grpc.NewServer()
+	moviepb.RegisterMovieServiceServer(grpcserver, servercontroller)
+	log.Printf("server listening at %v", lis.Addr())
+	if err := grpcserver.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
 
 func testonnxembeddingtofile(service *embeddingservice.EmbeddingServiceONNX, text string) {

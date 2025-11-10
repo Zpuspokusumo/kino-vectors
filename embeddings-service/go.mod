@@ -1,17 +1,19 @@
 module kino-vectors
 
-go 1.24.7
+go 1.24.9
 
 require (
-	github.com/Zpuspokusumo/kino-vectors/contract/golang v0.1.0
+	github.com/Zpuspokusumo/kino-vectors/contract/golang v0.1.3
 	github.com/google/uuid v1.6.0
 	github.com/qdrant/go-client v1.15.2
 	github.com/sugarme/tokenizer v0.3.0
 	github.com/yalue/onnxruntime_go v1.21.0
+	google.golang.org/grpc v1.76.0
 )
 
 require (
 	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -21,7 +23,6 @@ require (
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251029180050-ab9386a59fda // indirect
-	google.golang.org/grpc v1.76.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )
 
