@@ -10,7 +10,7 @@ import (
 )
 
 func setupservice(ENV env.ENV) (*EmbeddingServiceONNX, error) {
-	client, err := repository.NewClient(ENV.QdrantAPIKEY)
+	client, err := repository.NewClient(ENV.QdrantAPIport)
 	if err != nil {
 		return nil, err
 	}

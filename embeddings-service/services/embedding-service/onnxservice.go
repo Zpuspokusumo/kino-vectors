@@ -8,6 +8,7 @@ import (
 	"math"
 	"strings"
 
+	moviepb "github.com/Zpuspokusumo/kino-vectors/contract/golang/movie-services"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/sugarme/tokenizer"
 	pretrained "github.com/sugarme/tokenizer/pretrained"
@@ -279,26 +280,55 @@ func (service *EmbeddingServiceONNX) GetMovieEmbeddings(texts []string) ([]float
 	return meanEmbedding, nil
 }
 
-func MovieDatatoString(m repository.MovieInfo) string {
+func MovieDatatoString(m *moviepb.MovieInfo) string {
+	if m == nil {
+		return ""
+	}
 	return fmt.Sprintf("%v %d dir. %v \n\nGenres: %v \n\nActors: %v \n\nPlot: %v", m.Title, m.Year, m.Director,
 		strings.Join(m.Genre, ","), strings.Join(m.Actors, ","), m.Summary)
 }
 
-func MovieDataByWeights(m repository.MovieInfo) []string {
+func MovieDataByWeights3(m *moviepb.MovieInfo) []string {
+	if m == nil {
+		return []string{"", "", ""}
+	}
 	actors := fmt.Sprintf("Actors: %v\n", strings.Join(m.Actors, ","))
 	genres := fmt.Sprintf("Genres: %v\n", strings.Join(m.Genre, ","))
 	summary := fmt.Sprintf("%v %d dir. %v \n\nPlot: %v", m.Title, m.Year, m.Director, m.Summary)
 	return []string{actors, genres, summary}
 }
 
-func (service *EmbeddingServiceONNX) ProcessMovieData(ctx context.Context, movie repository.MovieInfo, collection string) ([]*qdrant.ScoredPoint, error) {
+func (service *EmbeddingServiceONNX) ProcessMovieData(ctx context.Context, movie *moviepb.MovieInfo, collection string) ([]*qdrant.ScoredPoint, error) {
 	//movietext := MovieDatatoString(movie)
-	v, err := service.GetMovieEmbeddings(MovieDataByWeights(movie))
+	v, err := service.GetMovieEmbeddings(MovieDataByWeights3(movie))
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := service.repo.UpsertPoints(ctx, collection, v, repository.MovieToPayload(&movie))
+	res, err := service.repo.UpsertPoints(ctx, collection, v, repository.MovieToPayload(movie))
+	if err != nil {
+		return nil, fmt.Errorf("upsert failed: %v", err.Error())
+	}
+	fmt.Println(res.Status.Descriptor(), "op ID", res.OperationId)
+	if res.Status == qdrant.UpdateStatus_ClockRejected {
+		return nil, fmt.Errorf("upsert rejected")
+	}
+
+	points, err := service.repo.SearchMovie(v, []string{})
+	if err != nil {
+		return nil, err
+	}
+	return points, nil
+}
+
+func (service *EmbeddingServiceONNX) SearchMovieFromText(ctx context.Context, movie *moviepb.MovieInfo, collection string) ([]*qdrant.ScoredPoint, error) {
+	//movietext := MovieDatatoString(movie)
+	v, err := service.GetMovieEmbeddings(MovieDataByWeights3(movie))
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := service.repo.UpsertPoints(ctx, collection, v, repository.MovieToPayload(movie))
 	if err != nil {
 		return nil, fmt.Errorf("upsert failed: %v", err.Error())
 	}

@@ -5,30 +5,30 @@ import (
 	"strconv"
 	"strings"
 
-	movs "github.com/Zpuspokusumo/kino-vectors/contract/golang/movie-services"
+	moviepb "github.com/Zpuspokusumo/kino-vectors/contract/golang/movie-services"
 
 	"github.com/google/uuid"
 	"github.com/qdrant/go-client/qdrant"
 )
 
-type MovieInfo struct {
-	Id       string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title    string   `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Director string   `protobuf:"bytes,3,opt,name=director,proto3" json:"director,omitempty"`
-	Year     int64    `protobuf:"bytes,4,opt,name=year,proto3" json:"year,omitempty"`
-	Genre    []string `protobuf:"bytes,5,rep,name=genre,proto3" json:"genre,omitempty"`
-	Actors   []string `protobuf:"bytes,6,rep,name=actors,proto3" json:"actors,omitempty"`
-	Summary  string   `protobuf:"bytes,7,opt,name=summary,proto3" json:"summary,omitempty"`
-}
+// type MovieInfo struct {
+// 	Id       string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+// 	Title    string   `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+// 	Director string   `protobuf:"bytes,3,opt,name=director,proto3" json:"director,omitempty"`
+// 	Year     int64    `protobuf:"bytes,4,opt,name=year,proto3" json:"year,omitempty"`
+// 	Genre    []string `protobuf:"bytes,5,rep,name=genre,proto3" json:"genre,omitempty"`
+// 	Actors   []string `protobuf:"bytes,6,rep,name=actors,proto3" json:"actors,omitempty"`
+// 	Summary  string   `protobuf:"bytes,7,opt,name=summary,proto3" json:"summary,omitempty"`
+// }
 
-var x movs.RecommendMoviesRequest
+var x moviepb.RecommendMoviesRequest
 
-func MovieToPayload(m *MovieInfo) map[string]*qdrant.Value {
+func MovieToPayload(m *moviepb.MovieInfo) map[string]*qdrant.Value {
 	return map[string]*qdrant.Value{
 		"id":       qdrant.NewValueString(m.Id),
 		"title":    qdrant.NewValueString(m.Title),
 		"director": qdrant.NewValueString(m.Director),
-		"year":     qdrant.NewValueInt(m.Year),
+		"year":     qdrant.NewValueInt(int64(m.Year)),
 		"genre":    qdrant.NewValueList(stringSliceToValues(m.Genre)),
 		"actors":   qdrant.NewValueList(stringSliceToValues(m.Actors)),
 		"summary":  qdrant.NewValueString(m.Summary),
@@ -132,6 +132,32 @@ func (repo *QdrantRepository) SearchMovie(v []float32, genres []string) ([]*qdra
 		},
 		//WithVectors: &qdrant.WithVectorsSelector{SelectorOptions: &qdrant.WithVectorsSelector_Enable{Enable: true}},
 		WithPayload: &qdrant.WithPayloadSelector{SelectorOptions: &qdrant.WithPayloadSelector_Enable{Enable: true}},
+	})
+
+	return results, err
+}
+func (repo *QdrantRepository) ScrollMovie(v []float32, genres []string, qty, offset uint32) ([]*qdrant.RetrievedPoint, error) {
+	var Filter *qdrant.Filter
+	if len(genres) > 0 {
+		Filter = &qdrant.Filter{
+			Must: []*qdrant.Condition{
+				qdrant.NewMatchKeywords("genres", genres...),
+			},
+		}
+	} else {
+		Filter = nil
+	}
+	results, err := repo.Client.Scroll(context.Background(), &qdrant.ScrollPoints{
+		CollectionName:   "",
+		Filter:           Filter,
+		Offset:           &qdrant.PointId{},
+		Limit:            new(uint32),
+		WithPayload:      &qdrant.WithPayloadSelector{},
+		WithVectors:      &qdrant.WithVectorsSelector{},
+		ReadConsistency:  &qdrant.ReadConsistency{},
+		ShardKeySelector: &qdrant.ShardKeySelector{},
+		OrderBy:          &qdrant.OrderBy{},
+		Timeout:          new(uint64),
 	})
 
 	return results, err
